@@ -1,0 +1,21 @@
+openapiOptions:
+  file:
+    - file: "pb/search.api.proto"
+      option:
+        info:
+          title: Search
+          version: "1.0.0"
+        basePath: /
+  method:
+    - method: pb.SearchService.SearchOrders
+      option:
+        operationId: searchOrders
+        tags:
+          - Orders
+        summary: Search for orders
+    - method: pb.SearchService.GetOrder
+      option:
+        operationId: getOrder
+        tags:
+          - Order
+        summary: Get an order

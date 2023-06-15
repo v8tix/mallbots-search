@@ -19,14 +19,14 @@ import (
 	"github.com/v8tix/mallbots-search/internal/grpc"
 	"github.com/v8tix/mallbots-search/internal/handlers"
 	"github.com/v8tix/mallbots-search/internal/logging"
-	"github.com/v8tix/mallbots-search/internal/monolith"
+	"github.com/v8tix/mallbots-search/internal/ms"
 	"github.com/v8tix/mallbots-search/internal/postgres"
 	storespb "github.com/v8tix/mallbots-stores-proto/pb"
 )
 
 type Module struct{}
 
-func (m Module) Startup(ctx context.Context, mono monolith.Monolith) (err error) {
+func (m Module) Startup(ctx context.Context, mono ms.Microservice) (err error) {
 	container := di.New()
 	// setup Driven adapters
 	container.AddSingleton("registry", func(c di.Container) (any, error) {
@@ -52,7 +52,7 @@ func (m Module) Startup(ctx context.Context, mono monolith.Monolith) (err error)
 		return mono.DB(), nil
 	})
 	container.AddSingleton("conn", func(c di.Container) (any, error) {
-		return grpc.Dial(ctx, mono.Config().Rpc.Address())
+		return grpc.Dial(ctx, mono.Config().RPC.Address())
 	})
 	container.AddScoped("tx", func(c di.Container) (any, error) {
 		db := c.Get("db").(*sql.DB)
@@ -113,7 +113,7 @@ func (m Module) Startup(ctx context.Context, mono monolith.Monolith) (err error)
 	if err = grpc.RegisterServerTx(container, mono.RPC()); err != nil {
 		return err
 	}
-	if err = rest.RegisterGateway(ctx, mono.Mux(), mono.Config().Rpc.Address()); err != nil {
+	if err = rest.RegisterGateway(ctx, mono.Mux(), mono.Config().RPC.Address()); err != nil {
 		return err
 	}
 	if err = rest.RegisterSwagger(mono.Mux()); err != nil {
